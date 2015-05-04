@@ -15,9 +15,18 @@
  */
 package ru.korsander.tedrss.model;
 
+import android.util.Log;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import ru.korsander.tedrss.utils.Const;
 
 public class Article {
+    private int id;
     private String title;
     private String description;
     private String link;
@@ -27,7 +36,10 @@ public class Article {
     private boolean viewed;
     private ArrayList<Media> media;
 
+    private static final String LOG_TAG = "model.article";
+
     public Article() {
+        id = -1;
         title = new String();
         description = new String();
         link = new String();
@@ -36,6 +48,26 @@ public class Article {
         date = -1;
         viewed = false;
         media = new ArrayList<Media>(7);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setId(String guid) {
+        Pattern pattern = Pattern.compile("\\d+:\\d+");
+        Matcher matcher = pattern.matcher(guid);
+        String match = matcher.group();
+        String[] array = match.split(":");
+        StringBuilder builder = new StringBuilder();
+        for(int i = (array.length-1); i >= 0; i--) {
+            builder.append(array[i]);
+        }
+        this.id = Integer.parseInt(builder.toString());
     }
 
     public String getTitle() {
@@ -78,12 +110,30 @@ public class Article {
         this.duration = duration;
     }
 
+    public void setDuration(String duration) {
+        String[] array = duration.split(":");
+        int hours = Integer.parseInt(array[0]);
+        int min = Integer.parseInt(array[1]);
+        int sec = Integer.parseInt(array[2]);
+        int result = (hours * 60 * 60) + (min * 60) + sec;
+        this.duration = result;
+    }
+
     public long getDate() {
         return date;
     }
 
     public void setDate(long date) {
         this.date = date;
+    }
+
+    public void setDate(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Const.RFC1123_DATE_PATTERN);
+        try {
+            this.date = dateFormat.parse(date).getTime();
+        } catch (ParseException e) {
+            Log.e(LOG_TAG, e.getMessage() != null ? e.getMessage() : e + "");
+        }
     }
 
     public boolean isViewed() {
