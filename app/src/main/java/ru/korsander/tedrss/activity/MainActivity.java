@@ -1,15 +1,17 @@
 package ru.korsander.tedrss.activity;
 
-import android.support.v7.app.ActionBarActivity;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v7.widget.Toolbar;
 
 import ru.korsander.tedrss.R;
+import ru.korsander.tedrss.fragment.OnFragmentInteractionListener;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements OnFragmentInteractionListener{
 
     private Toolbar toolbar;
     @Override
@@ -40,5 +42,10 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }
