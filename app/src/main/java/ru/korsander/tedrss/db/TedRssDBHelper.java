@@ -56,7 +56,14 @@ public class TedRssDBHelper extends SQLiteOpenHelper {
     private static final String DELETE_ARTICLES = "DROP TABLE IF EXIST " + TABLE_ARTICLES;
     private static final String DELETE_MEDIA = "DROP TABLE IF EXIST " + TABLE_MEDIA;
 
-    public TedRssDBHelper(Context context) {
+    public static synchronized DatabaseHelper getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new DatabaseHelper(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+    private TedRssDBHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
         this.context = context;
     }

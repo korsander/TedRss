@@ -22,6 +22,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 import ru.korsander.tedrss.R;
@@ -46,6 +48,7 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
         holder.tvTitle.setText(a.getTitle());
         holder.tvDesc.setText(a.getDescription());
         holder.tvDuration.setText(a.getDuration());
+        Picasso.with(context).load(a.getThumb()).into(holder.ivThumb);
     }
 
     @Override
