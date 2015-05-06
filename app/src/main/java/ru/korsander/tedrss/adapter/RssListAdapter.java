@@ -27,6 +27,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 import ru.korsander.tedrss.R;
+import ru.korsander.tedrss.TedRss;
 import ru.korsander.tedrss.model.Article;
 
 public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHolder> {
@@ -48,7 +49,7 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
         holder.tvTitle.setText(a.getTitle());
         holder.tvDesc.setText(a.getDescription());
         holder.tvDuration.setText(a.getDuration());
-        Picasso.with(context).load(a.getThumb()).into(holder.ivThumb);
+        Picasso.with(TedRss.getContext()).load(a.getThumb()).into(holder.ivThumb);
     }
 
     @Override

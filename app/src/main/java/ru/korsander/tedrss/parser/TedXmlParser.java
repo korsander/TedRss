@@ -103,6 +103,7 @@ public class TedXmlParser {
                                         currentMedia = new Media();
                                         for(int i = 0; i < parser.getAttributeCount(); i++) {
                                             String attr = parser.getAttributeName(i);
+                                            currentMedia.setArticleId(currentItem.getId());
                                             if(attr.equalsIgnoreCase(ATTR_URL)) {
                                                 currentMedia.setUrl(parser.getAttributeValue(i));
                                             } else if(attr.equalsIgnoreCase(ATTR_BITRATE)) {
@@ -121,6 +122,7 @@ public class TedXmlParser {
                         break;
                     case XmlPullParser.END_TAG:
                         if(name.equalsIgnoreCase(ITEM)) {
+                            currentItem.setMedia(medias);
                             result.add(currentItem);
                         } else if(name.equalsIgnoreCase(CHANNEL)) {
                             done = true;

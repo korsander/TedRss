@@ -46,7 +46,7 @@ public class TedRssDBHelper extends SQLiteOpenHelper {
     public static final String MEDIA_DURATION   = "duration";
     public static final String MEDIA_SIZE       = "size";
 
-    private static final String CREATE_ARTICLES = "CREATE TABLE " + TABLE_ARTICLES + " (" + ARTICLE_ID + " INTEGER, " +
+    private static final String CREATE_ARTICLES = "CREATE TABLE " + TABLE_ARTICLES + " (" + ARTICLE_ID + " INTEGER UNIQUE, " +
             ARTICLE_TITLE + " TEXT, " + ARTICLE_DESC + " TEXT, " + ARTICLE_LINK + " TEXT, " + ARTICLE_THUMB + " TEXT, " +
             ARTICLE_DURATION + " INTEGER, " + ARTICLE_DATE + " INTEGER, " + ARTICLE_VIEWED + " TEXT)";
 
@@ -56,9 +56,11 @@ public class TedRssDBHelper extends SQLiteOpenHelper {
     private static final String DELETE_ARTICLES = "DROP TABLE IF EXIST " + TABLE_ARTICLES;
     private static final String DELETE_MEDIA = "DROP TABLE IF EXIST " + TABLE_MEDIA;
 
-    public static synchronized DatabaseHelper getInstance(Context context) {
+    private static TedRssDBHelper sInstance;
+
+    public static synchronized TedRssDBHelper getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new DatabaseHelper(context.getApplicationContext());
+            sInstance = new TedRssDBHelper(context.getApplicationContext());
         }
         return sInstance;
     }

@@ -143,4 +143,12 @@ public class Article {
     public void setViewed(boolean viewed) {
         this.viewed = viewed;
     }
+
+    public ArrayList<Media> getMedia() {
+        return media;
+    }
+
+    public void setMedia(ArrayList<Media> media) {
+        this.media = media;
+    }
 }
