@@ -51,7 +51,7 @@ public class TedXmlParser {
 
     }
 
-    public ArrayList<Article> parse(InputStream stream) {
+    public static ArrayList<Article> parse(InputStream stream) {
         ArrayList<Article> result = null;
         XmlPullParser parser = Xml.newPullParser();
         try {
@@ -67,6 +67,7 @@ public class TedXmlParser {
                 switch (eventType) {
                     case XmlPullParser.START_DOCUMENT:
                         result = new ArrayList<Article>();
+                        Log.e(LOG_TAG, "start parsing");
                         break;
                     case XmlPullParser.START_TAG:
                         name = parser.getName();
@@ -75,16 +76,16 @@ public class TedXmlParser {
                             currentItem = new Article();
                         } else if(currentItem != null) {
                             if(name.equalsIgnoreCase(TITLE)) {
-                                currentItem.setTitle(parser.nextText());
+                                currentItem.setTitle(parser.nextText().replace("'","`"));
                             } else if(name.equalsIgnoreCase(LINK)) {
                                 currentItem.setLink(parser.nextText());
                             } else if(name.equalsIgnoreCase(DESC)) {
-                                currentItem.setDescription(parser.nextText());
+                                currentItem.setDescription(parser.nextText().replace("'","`"));
                             } else if(name.equalsIgnoreCase(DATE)) {
                                 currentItem.setDate(parser.nextText());
                             } else if(name.equalsIgnoreCase(GUID)) {
                                 currentItem.setId(parser.nextText());
-                            } else if(namespace.equalsIgnoreCase(NS_ITUNES)) {
+                            } else if(namespace != null && namespace.equalsIgnoreCase(NS_ITUNES)) {
                                 if(name.equalsIgnoreCase(IMAGE)) {
                                     for (int i = 0; i < parser.getAttributeCount(); i++) {
                                         if (parser.getAttributeName(i).equalsIgnoreCase(ATTR_URL)) {
@@ -95,7 +96,7 @@ public class TedXmlParser {
                                 } else if(name.equalsIgnoreCase(DURATION)) {
                                     currentItem.setDuration(parser.nextText());
                                 }
-                            }  else if(namespace.equalsIgnoreCase(NS_MEDIA)) {
+                            }  else if(namespace != null && namespace.equalsIgnoreCase(NS_MEDIA)) {
                                 if(name.equalsIgnoreCase(GROUP)) {
                                     medias = new ArrayList<>(7);
                                 } else if(medias != null) {
@@ -115,24 +116,29 @@ public class TedXmlParser {
                                             }
                                         }
                                         medias.add(currentMedia);
+
                                     }
                                 }
+
                             }
                         }
                         break;
                     case XmlPullParser.END_TAG:
+                        name = parser.getName();
                         if(name.equalsIgnoreCase(ITEM)) {
                             currentItem.setMedia(medias);
                             result.add(currentItem);
                         } else if(name.equalsIgnoreCase(CHANNEL)) {
                             done = true;
+                            Log.e(LOG_TAG, "stop parsing");
                         }
                         break;
                 }
                 eventType = parser.next();
             }
         } catch(Exception e) {
-            Log.e(LOG_TAG, e.getMessage() != null ? e.getMessage() : e + "");
+            e.printStackTrace();
+            Log.e(LOG_TAG, e.getMessage() != null ? e.getMessage() + e.getCause().getMessage() : e + "");
         }
         return result;
     }

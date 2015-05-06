@@ -20,6 +20,7 @@ import android.util.Log;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,6 +62,7 @@ public class Article {
     public void setId(String guid) {
         Pattern pattern = Pattern.compile("\\d+:\\d+");
         Matcher matcher = pattern.matcher(guid);
+        matcher.find();
         String match = matcher.group();
         String[] array = match.split(":");
         StringBuilder builder = new StringBuilder();
@@ -128,7 +130,7 @@ public class Article {
     }
 
     public void setDate(String date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(Const.RFC1123_DATE_PATTERN);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Const.RFC1123_DATE_PATTERN, Locale.US);
         try {
             this.date = dateFormat.parse(date).getTime();
         } catch (ParseException e) {

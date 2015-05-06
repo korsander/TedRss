@@ -1,8 +1,21 @@
 package ru.korsander.tedrss.service;
 
 import android.app.IntentService;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.util.Log;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+
+import ru.korsander.tedrss.db.TedRssDBManager;
+import ru.korsander.tedrss.model.Article;
+import ru.korsander.tedrss.parser.TedXmlParser;
+import ru.korsander.tedrss.utils.Const;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -12,6 +25,7 @@ import android.content.Context;
  * helper methods.
  */
 public class DownloadService extends IntentService {
+    private static final String LOG_TAG = "DownloadService";
     private static final String ACTION_LOAD = "ru.korsander.tedrss.service.action.LOAD";
 
 //    // TODO: Rename parameters
@@ -39,9 +53,7 @@ public class DownloadService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_LOAD.equals(action)) {
-//                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-//                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-//                handleActionLoad(param1, param2);
+                handleActionLoad();
             }
         }
     }
@@ -51,7 +63,25 @@ public class DownloadService extends IntentService {
      * parameters.
      */
     private void handleActionLoad() {
-        // TODO: Handle action Foo
-        throw new UnsupportedOperationException("Not yet implemented");
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        try {
+            if (networkInfo != null && networkInfo.isConnected()) {
+                URL url = new URL(Const.RSS_URL);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(150000 /* milliseconds */);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                conn.connect();
+                int response = conn.getResponseCode();
+                Log.d(LOG_TAG, "The response is: " + response);
+                ArrayList<Article> articles = TedXmlParser.parse(conn.getInputStream());
+                TedRssDBManager.insertUniqueArticles(articles);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
