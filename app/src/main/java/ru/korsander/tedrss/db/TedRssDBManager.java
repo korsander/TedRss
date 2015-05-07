@@ -1,5 +1,6 @@
 package ru.korsander.tedrss.db;
 
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -29,13 +30,13 @@ public class TedRssDBManager {
                 builder.setLength(0);
                 builder.append("INSERT OR REPLACE INTO ").append(TedRssDBHelper.TABLE_ARTICLES).append(" VALUES (")
                         .append(currentArticle.getId()).append(COMMA)
-                        .append("'").append(currentArticle.getTitle()).append("'").append(COMMA)
-                        .append("'").append(currentArticle.getDescription()).append("'").append(COMMA)
-                        .append("'").append(currentArticle.getLink()).append("'").append(COMMA)
-                        .append("'").append(currentArticle.getThumb()).append("'").append(COMMA)
+                        .append(DatabaseUtils.sqlEscapeString(currentArticle.getTitle())).append(COMMA)
+                        .append(DatabaseUtils.sqlEscapeString(currentArticle.getDescription())).append(COMMA)
+                        .append(DatabaseUtils.sqlEscapeString(currentArticle.getLink())).append(COMMA)
+                        .append(DatabaseUtils.sqlEscapeString(currentArticle.getThumb())).append(COMMA)
                         .append(currentArticle.getDuration()).append(COMMA)
                         .append(currentArticle.getDate()).append(COMMA)
-                        .append("'").append(viewed).append("'").append(");");
+                        .append(DatabaseUtils.sqlEscapeString(viewed)).append(");");
                 Log.e(LOG_TAG, builder.toString());
                 db.rawQuery(builder.toString(), null);
                 for (int j = 0; j < currentArticle.getMedia().size(); j++) {
@@ -43,7 +44,7 @@ public class TedRssDBManager {
                     builder.setLength(0);
                     builder.append("INSERT INTO ").append(TedRssDBHelper.TABLE_MEDIA).append(" VALUES (")
                             .append(currentMedia.getArticleId()).append(COMMA)
-                            .append("'").append(currentMedia.getUrl()).append("'").append(COMMA)
+                            .append(DatabaseUtils.sqlEscapeString(currentMedia.getUrl())).append(COMMA)
                             .append(currentMedia.getBitrate()).append(COMMA).append(currentMedia.getDuration()).append(COMMA)
                             .append(currentMedia.getSize()).append(");");
                     Log.e(LOG_TAG, builder.toString());

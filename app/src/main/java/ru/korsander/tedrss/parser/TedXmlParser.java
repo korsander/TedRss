@@ -15,6 +15,7 @@
  */
 package ru.korsander.tedrss.parser;
 
+import android.database.DatabaseUtils;
 import android.util.Log;
 import android.util.Xml;
 
@@ -76,11 +77,11 @@ public class TedXmlParser {
                             currentItem = new Article();
                         } else if(currentItem != null) {
                             if(name.equalsIgnoreCase(TITLE)) {
-                                currentItem.setTitle(parser.nextText().replace("'","`"));
+                                currentItem.setTitle(parser.nextText());
                             } else if(name.equalsIgnoreCase(LINK)) {
                                 currentItem.setLink(parser.nextText());
                             } else if(name.equalsIgnoreCase(DESC)) {
-                                currentItem.setDescription(parser.nextText().replace("'","`"));
+                                currentItem.setDescription(parser.nextText());
                             } else if(name.equalsIgnoreCase(DATE)) {
                                 currentItem.setDate(parser.nextText());
                             } else if(name.equalsIgnoreCase(GUID)) {
