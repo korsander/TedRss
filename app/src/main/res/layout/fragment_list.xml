@@ -6,10 +6,23 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <view
+    <ViewAnimator
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        class="android.support.v7.widget.RecyclerView"
-        android:id="@+id/recyclerView"
-        android:layout_gravity="center"/>
+        android:id="@+id/viewAnimator" >
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar" />
+
+        <view
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            class="android.support.v7.widget.RecyclerView"
+            android:id="@+id/recyclerView"
+            android:layout_gravity="center"/>
+
+    </ViewAnimator>
 </FrameLayout>

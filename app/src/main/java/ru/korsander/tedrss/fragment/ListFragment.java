@@ -2,15 +2,27 @@ package ru.korsander.tedrss.fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.LoaderManager;
+import android.content.AsyncTaskLoader;
+import android.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ViewAnimator;
+
+import java.util.ArrayList;
 
 import ru.korsander.tedrss.R;
+import ru.korsander.tedrss.TedRss;
 import ru.korsander.tedrss.adapter.RssListAdapter;
+import ru.korsander.tedrss.loader.ArticlesLoader;
+import ru.korsander.tedrss.model.Article;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,11 +32,12 @@ import ru.korsander.tedrss.adapter.RssListAdapter;
  * Use the {@link ListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ListFragment extends Fragment {
+public class ListFragment extends Fragment implements LoaderManager.LoaderCallbacks<ArrayList<Article>>{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final int LOADER_ARTICLES = 1;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -32,8 +45,10 @@ public class ListFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    private ViewAnimator animator;
     private RecyclerView list;
     private RssListAdapter adapter;
+    private LinearLayoutManager layoutManager;
 
     /**
      * Use this factory method to create a new instance of
@@ -64,13 +79,21 @@ public class ListFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        Bundle bundle = new Bundle();
+        getLoaderManager().initLoader(LOADER_ARTICLES, bundle, this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
+        animator = (ViewAnimator) view.findViewById(R.id.viewAnimator);
+        animator.setInAnimation(getActivity(), android.R.anim.fade_in);
+        animator.setOutAnimation(getActivity(), android.R.anim.fade_out);
         list = (RecyclerView) view.findViewById(R.id.recyclerView);
+        layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        list.setLayoutManager(layoutManager);
+        list.setItemAnimator(new DefaultItemAnimator());
         return view;
     }
 
@@ -98,4 +121,32 @@ public class ListFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public Loader<ArrayList<Article>> onCreateLoader(int i, Bundle bundle) {
+        Loader<ArrayList<Article>> loader = null;
+        Log.e(">", "load start");
+        if(i == LOADER_ARTICLES) {
+            loader = new ArticlesLoader(TedRss.getContext());
+        }
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<ArrayList<Article>> loader, ArrayList<Article> articles) {
+        Log.e(">", "load finish" + articles.size());
+        if(loader.getId() == LOADER_ARTICLES) {
+            Log.e(">", "load finish");
+            adapter = new RssListAdapter(articles);
+            list.setAdapter(adapter);
+            animator.showNext();
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<ArrayList<Article>> loader) {
+        if(loader.getId() == LOADER_ARTICLES) {
+            animator.showNext();
+        }
+    }
 }

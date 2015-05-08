@@ -146,6 +146,14 @@ public class Article {
         this.viewed = viewed;
     }
 
+    public void setViewed(String str) {
+        if(str.equals("true")) {
+            this.viewed = true;
+        } else {
+            this.viewed = false;
+        }
+    }
+
     public ArrayList<Media> getMedia() {
         return media;
     }

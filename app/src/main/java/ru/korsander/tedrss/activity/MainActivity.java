@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import ru.korsander.tedrss.R;
+import ru.korsander.tedrss.fragment.ListFragment;
 import ru.korsander.tedrss.fragment.OnFragmentInteractionListener;
 import ru.korsander.tedrss.service.DownloadService;
 
@@ -21,6 +22,7 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getFragmentManager().beginTransaction().replace(R.id.container, ListFragment.newInstance("","")).commit();
 
         DownloadService.startLoad(this);
     }

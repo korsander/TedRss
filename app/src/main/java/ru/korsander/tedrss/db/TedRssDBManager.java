@@ -1,5 +1,6 @@
 package ru.korsander.tedrss.db;
 
+import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -37,7 +38,7 @@ public class TedRssDBManager {
                         .append(currentArticle.getDuration()).append(COMMA)
                         .append(currentArticle.getDate()).append(COMMA)
                         .append(DatabaseUtils.sqlEscapeString(viewed)).append(");");
-                Log.e(LOG_TAG, builder.toString());
+                //Log.e(LOG_TAG, builder.toString());
                 db.rawQuery(builder.toString(), null);
                 for (int j = 0; j < currentArticle.getMedia().size(); j++) {
                     currentMedia = currentArticle.getMedia().get(j);
@@ -47,7 +48,7 @@ public class TedRssDBManager {
                             .append(DatabaseUtils.sqlEscapeString(currentMedia.getUrl())).append(COMMA)
                             .append(currentMedia.getBitrate()).append(COMMA).append(currentMedia.getDuration()).append(COMMA)
                             .append(currentMedia.getSize()).append(");");
-                    Log.e(LOG_TAG, builder.toString());
+                    //Log.e(LOG_TAG, builder.toString());
                     db.rawQuery(builder.toString(), null);
                 }
             }
@@ -58,6 +59,43 @@ public class TedRssDBManager {
             if(flag) db.setTransactionSuccessful();
             db.endTransaction();
         }
+    }
+
+    public static ArrayList<Article> getArticles() {
+        SQLiteDatabase db = TedRssDBHelper.getInstance(TedRss.getContext()).getReadableDatabase();
+        Log.e(">", "start getting articles");
+        ArrayList<Article> articles = new ArrayList<Article>();
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("SELECT * FROM ");
+        builder.append(TedRssDBHelper.TABLE_ARTICLES);
+
+        Cursor cursor =  db.rawQuery(builder.toString(), null);
+        try {
+            if (cursor != null && cursor.getCount() > 0) {
+                for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                    Article article = new Article();
+                    article.setId(cursor.getInt(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_ID)));
+                    article.setTitle(cursor.getString(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_TITLE)));
+                    article.setDescription(cursor.getString(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_DESC)));
+                    article.setLink(cursor.getString(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_LINK)));
+                    article.setThumb(cursor.getString(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_THUMB)));
+                    article.setDuration(cursor.getInt(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_DURATION)));
+                    article.setDate(cursor.getLong(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_DATE)));
+                    article.setViewed(cursor.getString(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_VIEWED)));
+                    articles.add(article);
+                }
+            }
+        } catch (Exception e) {
+            Log.e("getArticles", e.getMessage() != null ? e.getMessage() : e+"");
+        } finally {
+            if(cursor != null && !cursor.isClosed()) {
+                cursor.close();
+                cursor = null;
+            }
+        }
+        Log.e(">", "stop get article " + articles.size());
+        return articles;
     }
 
 }
