@@ -48,7 +48,7 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
         Article a = items.get(position);
         holder.tvTitle.setText(a.getTitle());
         holder.tvDesc.setText(a.getDescription());
-        holder.tvDuration.setText(a.getDuration());
+        //holder.tvDuration.setText(a.getDuration());
         Picasso.with(TedRss.getContext()).load(a.getThumb()).into(holder.ivThumb);
     }
 
@@ -68,7 +68,7 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
             ivThumb = (ImageView) view.findViewById(R.id.thumbImageView);
             tvTitle = (TextView) view.findViewById(R.id.titleTextView);
             tvDesc = (TextView) view.findViewById(R.id.descTextView);
-            tvDuration = (TextView) view.findViewById(R.id.descTextView);
+            tvDuration = (TextView) view.findViewById(R.id.durationTextView);
         }
     }
 }

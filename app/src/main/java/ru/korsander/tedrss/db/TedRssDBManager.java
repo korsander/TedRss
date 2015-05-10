@@ -1,10 +1,15 @@
 package ru.korsander.tedrss.db;
 
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
+import android.os.Environment;
 import android.util.Log;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 import ru.korsander.tedrss.TedRss;
@@ -16,48 +21,50 @@ import ru.korsander.tedrss.model.Media;
  */
 public class TedRssDBManager {
     private static final String LOG_TAG = "DB_MANAGER";
-    private static final String COMMA = ", ";
     public static void insertUniqueArticles(ArrayList<Article> articles) {
         SQLiteDatabase db = TedRssDBHelper.getInstance(TedRss.getContext()).getWritableDatabase();
         StringBuilder builder = new StringBuilder();
         Article currentArticle;
         Media currentMedia;
         boolean flag = true;
-        db.beginTransaction();
+        db.beginTransactionNonExclusive();
         try {
+            builder.append("INSERT OR REPLACE INTO ").append(TedRssDBHelper.TABLE_ARTICLES).append(" VALUES(?,?,?,?,?,?,?,?)");
+            SQLiteStatement statementAtricle = db.compileStatement(builder.toString());
+            builder.setLength(0);
+            builder.append("INSERT INTO ").append(TedRssDBHelper.TABLE_MEDIA).append(" VALUES (?,?,?,?,?)");
+            SQLiteStatement statementMedia = db.compileStatement(builder.toString());
             for (int i = 0; i < articles.size(); i++) {
                 currentArticle = articles.get(i);
                 String viewed = currentArticle.isViewed() ? "true" : "false";
-                builder.setLength(0);
-                builder.append("INSERT OR REPLACE INTO ").append(TedRssDBHelper.TABLE_ARTICLES).append(" VALUES (")
-                        .append(currentArticle.getId()).append(COMMA)
-                        .append(DatabaseUtils.sqlEscapeString(currentArticle.getTitle())).append(COMMA)
-                        .append(DatabaseUtils.sqlEscapeString(currentArticle.getDescription())).append(COMMA)
-                        .append(DatabaseUtils.sqlEscapeString(currentArticle.getLink())).append(COMMA)
-                        .append(DatabaseUtils.sqlEscapeString(currentArticle.getThumb())).append(COMMA)
-                        .append(currentArticle.getDuration()).append(COMMA)
-                        .append(currentArticle.getDate()).append(COMMA)
-                        .append(DatabaseUtils.sqlEscapeString(viewed)).append(");");
-                //Log.e(LOG_TAG, builder.toString());
-                db.rawQuery(builder.toString(), null);
+                statementAtricle.bindLong(1, currentArticle.getId());
+                statementAtricle.bindString(2, currentArticle.getTitle());
+                statementAtricle.bindString(3, currentArticle.getDescription());
+                statementAtricle.bindString(4, currentArticle.getLink());
+                statementAtricle.bindString(5, currentArticle.getThumb());
+                statementAtricle.bindLong(6, currentArticle.getDuration());
+                statementAtricle.bindLong(7, currentArticle.getDate());
+                statementAtricle.bindString(8, viewed);
+                statementAtricle.execute();
                 for (int j = 0; j < currentArticle.getMedia().size(); j++) {
                     currentMedia = currentArticle.getMedia().get(j);
-                    builder.setLength(0);
-                    builder.append("INSERT INTO ").append(TedRssDBHelper.TABLE_MEDIA).append(" VALUES (")
-                            .append(currentMedia.getArticleId()).append(COMMA)
-                            .append(DatabaseUtils.sqlEscapeString(currentMedia.getUrl())).append(COMMA)
-                            .append(currentMedia.getBitrate()).append(COMMA).append(currentMedia.getDuration()).append(COMMA)
-                            .append(currentMedia.getSize()).append(");");
-                    //Log.e(LOG_TAG, builder.toString());
-                    db.rawQuery(builder.toString(), null);
+                    statementMedia.bindLong(1, currentMedia.getArticleId());
+                    statementMedia.bindString(2, currentMedia.getUrl());
+                    statementMedia.bindLong(3, currentMedia.getBitrate());
+                    statementMedia.bindLong(4, currentMedia.getDuration());
+                    statementMedia.bindLong(5, currentMedia.getSize());
+                    statementMedia.execute();
                 }
             }
+
         } catch (Exception e) {
             flag = false;
             Log.e(LOG_TAG, e.getMessage() != null ? e.getMessage() : e + "");
         } finally {
+            Log.e(LOG_TAG, "close transaction");
             if(flag) db.setTransactionSuccessful();
             db.endTransaction();
+            db.close();
         }
     }
 
@@ -71,6 +78,7 @@ public class TedRssDBManager {
         builder.append(TedRssDBHelper.TABLE_ARTICLES);
 
         Cursor cursor =  db.rawQuery(builder.toString(), null);
+        Log.e(">", "start getting articles" + cursor.getCount());
         try {
             if (cursor != null && cursor.getCount() > 0) {
                 for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
@@ -96,6 +104,30 @@ public class TedRssDBManager {
         }
         Log.e(">", "stop get article " + articles.size());
         return articles;
+    }
+
+    public static void exportDatabse() {
+        try {
+            File sd = Environment.getExternalStorageDirectory();
+            File data = Environment.getDataDirectory();
+
+            if (sd.canWrite()) {
+                String currentDBPath = "//data//"+TedRss.getContext().getPackageName()+"//databases//"+TedRssDBHelper.DB_NAME+"";
+                String backupDBPath = "tedrssbackup.db";
+                File currentDB = new File(data, currentDBPath);
+                File backupDB = new File(sd, backupDBPath);
+
+                if (currentDB.exists()) {
+                    FileChannel src = new FileInputStream(currentDB).getChannel();
+                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                    dst.transferFrom(src, 0, src.size());
+                    src.close();
+                    dst.close();
+                }
+            }
+        } catch (Exception e) {
+            Log.e("DBManager", e.getMessage() != null ? e.getMessage() : e + "");
+        }
     }
 
 }

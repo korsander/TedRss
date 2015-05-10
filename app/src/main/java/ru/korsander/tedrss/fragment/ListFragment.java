@@ -3,7 +3,6 @@ package ru.korsander.tedrss.fragment;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
 import android.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
@@ -94,6 +93,7 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
         layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         list.setLayoutManager(layoutManager);
         list.setItemAnimator(new DefaultItemAnimator());
+        getLoaderManager().getLoader(LOADER_ARTICLES).forceLoad();
         return view;
     }
 
@@ -102,6 +102,12 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getLoaderManager().getLoader(LOADER_ARTICLES).forceLoad();
     }
 
     @Override

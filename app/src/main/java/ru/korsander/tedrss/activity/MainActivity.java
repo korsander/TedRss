@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import ru.korsander.tedrss.R;
+import ru.korsander.tedrss.db.TedRssDBManager;
 import ru.korsander.tedrss.fragment.ListFragment;
 import ru.korsander.tedrss.fragment.OnFragmentInteractionListener;
 import ru.korsander.tedrss.service.DownloadService;
@@ -41,9 +42,12 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch(id) {
+            case R.id.action_backup:
+                TedRssDBManager.exportDatabse();
+                return true;
+            case R.id.action_settings:
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
