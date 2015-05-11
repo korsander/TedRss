@@ -5,4 +5,17 @@
         <item name="android:windowActionBar">false</item>
     </style>
 
+    <style name="TimeTextView">
+        <item name="android:textColor">@color/color_dark_blue</item>
+    </style>
+
+    <style name="TimeTextView.Dark" parent="TimeTextView">
+        <item name="android:textColor">@color/color_blue</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TimeTextView.Light" parent="TimeTextView">
+        <item name="android:textColor">@color/color_light_blue</item>
+    </style>
+
 </resources>

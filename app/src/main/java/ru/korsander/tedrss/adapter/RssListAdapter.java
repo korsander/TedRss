@@ -16,9 +16,12 @@
 package ru.korsander.tedrss.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,6 +32,7 @@ import java.util.ArrayList;
 import ru.korsander.tedrss.R;
 import ru.korsander.tedrss.TedRss;
 import ru.korsander.tedrss.model.Article;
+import ru.korsander.tedrss.utils.Const;
 
 public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHolder> {
     private ArrayList<Article> items;
@@ -44,12 +48,27 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        Article a = items.get(position);
-        holder.tvTitle.setText(a.getTitle());
-        holder.tvDesc.setText(a.getDescription());
-        //holder.tvDuration.setText(a.getDuration());
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        final Article a = items.get(position);
+        StringBuilder builder = new StringBuilder();
+        builder.append("<b>").append(a.getTitle()).append("</b>")
+                .append(" - ").append(a.getDescription());
+        if(a.isViewed()) {
+            holder.tvTime.setTextAppearance(TedRss.getContext(), R.style.TimeTextView_Light);
+        } else {
+            holder.tvTime.setTextAppearance(TedRss.getContext(), R.style.TimeTextView_Dark);
+        }
+        holder.tvTime.setText(a.getFormattedDate(Const.RFC1123_SHORT_DATE_PATTERN));
+        holder.tvDesc.setText(Html.fromHtml(builder.toString()));
+        holder.tvDuration.setText(a.getDurationString());
+        holder.chbViewed.setChecked(a.isViewed());
         Picasso.with(TedRss.getContext()).load(a.getThumb()).into(holder.ivThumb);
+        holder.chbViewed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                a.setViewed(b);
+            }
+        });
     }
 
     @Override
@@ -59,16 +78,19 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private ImageView ivThumb;
-        private TextView tvTitle;
+        private TextView tvTime;
         private TextView tvDesc;
         private TextView tvDuration;
+        private CheckBox chbViewed;
 
         public ViewHolder(View view) {
             super(view);
             ivThumb = (ImageView) view.findViewById(R.id.thumbImageView);
-            tvTitle = (TextView) view.findViewById(R.id.titleTextView);
+            tvTime = (TextView) view.findViewById(R.id.timeTextView);
             tvDesc = (TextView) view.findViewById(R.id.descTextView);
             tvDuration = (TextView) view.findViewById(R.id.durationTextView);
+            chbViewed = (CheckBox) view.findViewById(R.id.viewedCheckBox);
+
         }
     }
 }

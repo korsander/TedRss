@@ -20,6 +20,7 @@ import android.util.Log;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,6 +109,21 @@ public class Article {
         return duration;
     }
 
+    public String getDurationString() {
+        StringBuilder builder = new StringBuilder();
+        int hours = duration / 3600;
+        int min = (duration - hours*3600) / 60;
+        int sec = (duration - hours*3600 - min*60);
+        if(hours < 10) builder.append(0);
+        builder.append(hours).append(":");
+        if(min < 10) builder.append(0);
+        builder.append(min).append(":");
+        if(sec < 10) builder.append(0);
+        builder.append(sec);
+
+        return  builder.toString();
+    }
+
     public void setDuration(int duration) {
         this.duration = duration;
     }
@@ -123,6 +139,11 @@ public class Article {
 
     public long getDate() {
         return date;
+    }
+
+    public String getFormattedDate(String str) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(str, Locale.US);
+        return  dateFormat.format(new Date(date));
     }
 
     public void setDate(long date) {

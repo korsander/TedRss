@@ -15,7 +15,6 @@
  */
 package ru.korsander.tedrss.parser;
 
-import android.database.DatabaseUtils;
 import android.util.Log;
 import android.util.Xml;
 
@@ -103,13 +102,18 @@ public class TedXmlParser {
                                 } else if(medias != null) {
                                     if(name.equalsIgnoreCase(CONTENT)){
                                         currentMedia = new Media();
+
                                         for(int i = 0; i < parser.getAttributeCount(); i++) {
                                             String attr = parser.getAttributeName(i);
                                             currentMedia.setArticleId(currentItem.getId());
+
                                             if(attr.equalsIgnoreCase(ATTR_URL)) {
                                                 currentMedia.setUrl(parser.getAttributeValue(i));
                                             } else if(attr.equalsIgnoreCase(ATTR_BITRATE)) {
                                                 currentMedia.setBitrate(Integer.parseInt(parser.getAttributeValue(i)));
+                                                StringBuilder sb = new StringBuilder();
+                                                sb.append(currentItem.getId()).append(parser.getAttributeValue(i));
+                                                currentMedia.setId(Integer.parseInt(sb.toString()));
                                             } else if(attr.equalsIgnoreCase(ATTR_DURATION)) {
                                                 currentMedia.setDuration(Integer.parseInt(parser.getAttributeValue(i)));
                                             } else if(attr.equalsIgnoreCase(ATTR_SIZE)) {
@@ -117,7 +121,6 @@ public class TedXmlParser {
                                             }
                                         }
                                         medias.add(currentMedia);
-
                                     }
                                 }
 
@@ -139,7 +142,7 @@ public class TedXmlParser {
             }
         } catch(Exception e) {
             e.printStackTrace();
-            Log.e(LOG_TAG, e.getMessage() != null ? e.getMessage() + e.getCause().getMessage() : e + "");
+            Log.e(LOG_TAG, e.getMessage() != null ? e.getMessage() : e + "");
         }
         return result;
     }

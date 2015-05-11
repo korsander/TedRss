@@ -23,7 +23,7 @@ public class TedRssDBHelper extends SQLiteOpenHelper {
     private Context context;
 
     public static final String DB_NAME = "tedrss";
-    public static final int VERSION = 1;
+    public static final int VERSION = 2;
 
     //Articles table
     public static final String TABLE_ARTICLES   = "articles";
@@ -40,6 +40,7 @@ public class TedRssDBHelper extends SQLiteOpenHelper {
     //Media table
     public static final String TABLE_MEDIA      = "media";
 
+    public static final String MEDIA_ID         = "id";
     public static final String MEDIA_ARTICLE_ID = "aid";
     public static final String MEDIA_URL        = "url";
     public static final String MEDIA_BITRATE    = "bitrate";
@@ -50,11 +51,12 @@ public class TedRssDBHelper extends SQLiteOpenHelper {
             ARTICLE_TITLE + " TEXT, " + ARTICLE_DESC + " TEXT, " + ARTICLE_LINK + " TEXT, " + ARTICLE_THUMB + " TEXT, " +
             ARTICLE_DURATION + " INTEGER, " + ARTICLE_DATE + " INTEGER, " + ARTICLE_VIEWED + " TEXT)";
 
-    private static final String CREATE_MEDIA = "CREATE TABLE " + TABLE_MEDIA + " (" + MEDIA_ARTICLE_ID + " INTEGER, " +
-            MEDIA_URL + " TEXT, " + MEDIA_BITRATE + " INTEGER, " + MEDIA_DURATION + " INTEGER, " + MEDIA_SIZE + " INTEGER)";
+    private static final String CREATE_MEDIA = "CREATE TABLE " + TABLE_MEDIA + " (" + MEDIA_ID + " INTEGER UNIQUE, "
+            + MEDIA_ARTICLE_ID + " INTEGER, " + MEDIA_URL + " TEXT, " + MEDIA_BITRATE + " INTEGER, " + MEDIA_DURATION
+            + " INTEGER, " + MEDIA_SIZE + " INTEGER)";
 
-    private static final String DELETE_ARTICLES = "DROP TABLE IF EXIST " + TABLE_ARTICLES;
-    private static final String DELETE_MEDIA = "DROP TABLE IF EXIST " + TABLE_MEDIA;
+    private static final String DELETE_ARTICLES = "DROP TABLE IF EXISTS " + TABLE_ARTICLES;
+    private static final String DELETE_MEDIA = "DROP TABLE IF EXISTS " + TABLE_MEDIA;
 
     private static TedRssDBHelper sInstance;
 

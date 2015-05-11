@@ -16,6 +16,7 @@
 package ru.korsander.tedrss.model;
 
 public class Media {
+    private int id;
     private int articleId;
     private String url;
     private int bitrate;
@@ -23,11 +24,20 @@ public class Media {
     private long size;
 
     public Media() {
+        id = -1;
         articleId = -1;
         url = new String();
         bitrate = -1;
         duration = -1;
         size = -1;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getArticleId() {

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="toolbar_color">#FF2196F3</color>
+    
+    <color name="color_blue">#FF2196F3</color>
+    <color name="color_dark_blue">#FF0D47A1</color>
+    <color name="color_light_blue">#FF90CAF9</color>
+</resources>

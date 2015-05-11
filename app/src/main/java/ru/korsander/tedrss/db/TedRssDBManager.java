@@ -30,29 +30,30 @@ public class TedRssDBManager {
         db.beginTransactionNonExclusive();
         try {
             builder.append("INSERT OR REPLACE INTO ").append(TedRssDBHelper.TABLE_ARTICLES).append(" VALUES(?,?,?,?,?,?,?,?)");
-            SQLiteStatement statementAtricle = db.compileStatement(builder.toString());
+            SQLiteStatement statementArticle = db.compileStatement(builder.toString());
             builder.setLength(0);
-            builder.append("INSERT INTO ").append(TedRssDBHelper.TABLE_MEDIA).append(" VALUES (?,?,?,?,?)");
+            builder.append("INSERT OR REPLACE INTO ").append(TedRssDBHelper.TABLE_MEDIA).append(" VALUES (?,?,?,?,?,?)");
             SQLiteStatement statementMedia = db.compileStatement(builder.toString());
             for (int i = 0; i < articles.size(); i++) {
                 currentArticle = articles.get(i);
                 String viewed = currentArticle.isViewed() ? "true" : "false";
-                statementAtricle.bindLong(1, currentArticle.getId());
-                statementAtricle.bindString(2, currentArticle.getTitle());
-                statementAtricle.bindString(3, currentArticle.getDescription());
-                statementAtricle.bindString(4, currentArticle.getLink());
-                statementAtricle.bindString(5, currentArticle.getThumb());
-                statementAtricle.bindLong(6, currentArticle.getDuration());
-                statementAtricle.bindLong(7, currentArticle.getDate());
-                statementAtricle.bindString(8, viewed);
-                statementAtricle.execute();
+                statementArticle.bindLong(1, currentArticle.getId());
+                statementArticle.bindString(2, currentArticle.getTitle());
+                statementArticle.bindString(3, currentArticle.getDescription());
+                statementArticle.bindString(4, currentArticle.getLink());
+                statementArticle.bindString(5, currentArticle.getThumb());
+                statementArticle.bindLong(6, currentArticle.getDuration());
+                statementArticle.bindLong(7, currentArticle.getDate());
+                statementArticle.bindString(8, viewed);
+                statementArticle.execute();
                 for (int j = 0; j < currentArticle.getMedia().size(); j++) {
                     currentMedia = currentArticle.getMedia().get(j);
-                    statementMedia.bindLong(1, currentMedia.getArticleId());
-                    statementMedia.bindString(2, currentMedia.getUrl());
-                    statementMedia.bindLong(3, currentMedia.getBitrate());
-                    statementMedia.bindLong(4, currentMedia.getDuration());
-                    statementMedia.bindLong(5, currentMedia.getSize());
+                    statementMedia.bindLong(1, currentMedia.getId());
+                    statementMedia.bindLong(2, currentMedia.getArticleId());
+                    statementMedia.bindString(3, currentMedia.getUrl());
+                    statementMedia.bindLong(4, currentMedia.getBitrate());
+                    statementMedia.bindLong(5, currentMedia.getDuration());
+                    statementMedia.bindLong(6, currentMedia.getSize());
                     statementMedia.execute();
                 }
             }
@@ -76,6 +77,7 @@ public class TedRssDBManager {
         StringBuilder builder = new StringBuilder();
         builder.append("SELECT * FROM ");
         builder.append(TedRssDBHelper.TABLE_ARTICLES);
+        builder.append(" ORDER BY ").append(TedRssDBHelper.ARTICLE_DATE).append(" DESC");
 
         Cursor cursor =  db.rawQuery(builder.toString(), null);
         Log.e(">", "start getting articles" + cursor.getCount());
