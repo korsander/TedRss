@@ -19,4 +19,5 @@ public class Const {
     public static final String RFC1123_DATE_PATTERN = "EEE, dd MMM yyyy HH:mm:ss Z";
     public static final String RFC1123_SHORT_DATE_PATTERN = "EEE, dd MMM yyyy HH:mm";
     public static final String RSS_URL = "http://www.ted.com/themes/rss/id/6";
+    public static final long UPDATE_TIMEOUT = 86400000;
 }

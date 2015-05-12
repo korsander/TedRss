@@ -15,13 +15,15 @@
  */
 package ru.korsander.tedrss.adapter;
 
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -36,6 +38,7 @@ import ru.korsander.tedrss.utils.Const;
 
 public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHolder> {
     private ArrayList<Article> items;
+    private int lastPosition = -1;
 
     public RssListAdapter(ArrayList<Article> items) {
         this.items = items;
@@ -48,8 +51,9 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         final Article a = items.get(position);
+        final int pos = position;
         StringBuilder builder = new StringBuilder();
         builder.append("<b>").append(a.getTitle()).append("</b>")
                 .append(" - ").append(a.getDescription());
@@ -63,12 +67,31 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
         holder.tvDuration.setText(a.getDurationString());
         holder.chbViewed.setChecked(a.isViewed());
         Picasso.with(TedRss.getContext()).load(a.getThumb()).into(holder.ivThumb);
-        holder.chbViewed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.chbViewed.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                a.setViewed(b);
+            public void onClick(View view) {
+                items.get(pos).setViewed(((CheckBox) view).isChecked());
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyItemChanged(pos);
+                    }
+                });
             }
         });
+
+        Animation animation = AnimationUtils.loadAnimation(TedRss.getContext(),
+                (position > lastPosition) ? R.anim.up_from_bottom
+                        : R.anim.down_from_top);
+        holder.itemView.startAnimation(animation);
+        lastPosition = position;
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        holder.itemView.clearAnimation();
+        holder.chbViewed.setOnClickListener(null);
     }
 
     @Override
