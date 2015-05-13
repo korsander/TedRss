@@ -108,6 +108,59 @@ public class TedRssDBManager {
         return articles;
     }
 
+    public static Article getArticle(int id) {
+        SQLiteDatabase db = TedRssDBHelper.getInstance(TedRss.getContext()).getReadableDatabase();
+        Article result = new Article();
+        ArrayList<Media> array = new ArrayList<Media>();
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("SELECT * FROM ").append(TedRssDBHelper.TABLE_ARTICLES)
+                .append(" WHERE ").append(TedRssDBHelper.ARTICLE_ID).append(" = ")
+                .append(id).append(" LIMIT 1");
+
+        try {
+            Cursor cursor =  db.rawQuery(builder.toString(), null);
+            if (cursor != null && cursor.getCount() > 0) {
+                for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                    result.setId(cursor.getInt(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_ID)));
+                    result.setTitle(cursor.getString(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_TITLE)));
+                    result.setDescription(cursor.getString(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_DESC)));
+                    result.setLink(cursor.getString(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_LINK)));
+                    result.setThumb(cursor.getString(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_THUMB)));
+                    result.setDuration(cursor.getInt(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_DURATION)));
+                    result.setDate(cursor.getLong(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_DATE)));
+                    result.setViewed(cursor.getString(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_VIEWED)));
+                }
+            }
+            builder.setLength(0);
+            builder.append("SELECT * FROM ").append(TedRssDBHelper.TABLE_MEDIA)
+                    .append(" WHERE ").append(TedRssDBHelper.MEDIA_ARTICLE_ID).append(" = ")
+                    .append(id).append(" ORDER BY ").append(TedRssDBHelper.MEDIA_BITRATE).append(" ASC");
+            cursor = db.rawQuery(builder.toString(), null);
+            if (cursor != null && cursor.getCount() > 0) {
+                for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                    Media currentMedia = new Media();
+                    currentMedia.setId(cursor.getInt(cursor.getColumnIndex(TedRssDBHelper.MEDIA_ID)));
+                    currentMedia.setArticleId(cursor.getInt(cursor.getColumnIndex(TedRssDBHelper.MEDIA_ARTICLE_ID)));
+                    currentMedia.setUrl(cursor.getString(cursor.getColumnIndex(TedRssDBHelper.MEDIA_URL)));
+                    currentMedia.setBitrate(cursor.getInt(cursor.getColumnIndex(TedRssDBHelper.MEDIA_BITRATE)));
+                    currentMedia.setDuration(cursor.getInt(cursor.getColumnIndex(TedRssDBHelper.MEDIA_DURATION)));
+                    currentMedia.setSize(cursor.getLong(cursor.getColumnIndex(TedRssDBHelper.MEDIA_SIZE)));
+                    array.add(currentMedia);
+                }
+            }
+            result.setMedia(array);
+        } catch(Exception e) {
+            Log.e("getArticles", e.getMessage() != null ? e.getMessage() : e+"");
+        } finally {
+            if(cursor != null && !cursor.isClosed()) {
+                cursor.close();
+                cursor = null;
+            }
+        }
+        return result;
+    }
+
     public static void exportDatabse() {
         try {
             File sd = Environment.getExternalStorageDirectory();
@@ -131,5 +184,4 @@ public class TedRssDBManager {
             Log.e("DBManager", e.getMessage() != null ? e.getMessage() : e + "");
         }
     }
-
 }

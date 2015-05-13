@@ -89,7 +89,8 @@ public class TedXmlParser {
                                 if(name.equalsIgnoreCase(IMAGE)) {
                                     for (int i = 0; i < parser.getAttributeCount(); i++) {
                                         if (parser.getAttributeName(i).equalsIgnoreCase(ATTR_URL)) {
-                                            currentItem.setThumb(parser.getAttributeValue(i));
+                                            String urlString = parser.getAttributeValue(i);
+                                            currentItem.setThumb(urlString.substring(0, urlString.lastIndexOf("?")));
                                             break;
                                         }
                                     }

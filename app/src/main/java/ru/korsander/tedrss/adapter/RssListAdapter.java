@@ -35,13 +35,18 @@ import ru.korsander.tedrss.R;
 import ru.korsander.tedrss.TedRss;
 import ru.korsander.tedrss.model.Article;
 import ru.korsander.tedrss.utils.Const;
+import ru.korsander.tedrss.utils.Utils;
 
 public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHolder> {
     private ArrayList<Article> items;
     private int lastPosition = -1;
+    private String thumbHeight = "";
 
     public RssListAdapter(ArrayList<Article> items) {
         this.items = items;
+        StringBuilder sb = new StringBuilder();
+        sb.append("?h=").append(Utils.convertDpToPixel(100));
+        thumbHeight = sb.toString();
     }
 
     @Override
@@ -66,7 +71,7 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
         holder.tvDesc.setText(Html.fromHtml(builder.toString()));
         holder.tvDuration.setText(a.getDurationString());
         holder.chbViewed.setChecked(a.isViewed());
-        Picasso.with(TedRss.getContext()).load(a.getThumb()).into(holder.ivThumb);
+        Picasso.with(TedRss.getContext()).load(a.getThumb() + thumbHeight).into(holder.ivThumb);
         holder.chbViewed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
