@@ -117,9 +117,8 @@ public class TedRssDBManager {
         builder.append("SELECT * FROM ").append(TedRssDBHelper.TABLE_ARTICLES)
                 .append(" WHERE ").append(TedRssDBHelper.ARTICLE_ID).append(" = ")
                 .append(id).append(" LIMIT 1");
-
+        Cursor cursor =  db.rawQuery(builder.toString(), null);
         try {
-            Cursor cursor =  db.rawQuery(builder.toString(), null);
             if (cursor != null && cursor.getCount() > 0) {
                 for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                     result.setId(cursor.getInt(cursor.getColumnIndex(TedRssDBHelper.ARTICLE_ID)));

@@ -31,7 +31,7 @@ import ru.korsander.tedrss.model.Article;
  * Use the {@link ListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ListFragment extends Fragment implements LoaderManager.LoaderCallbacks<ArrayList<Article>>{
+public class ListFragment extends Fragment implements LoaderManager.LoaderCallbacks<ArrayList<Article>>, ClickItemCallback{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -143,6 +143,7 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
         if(loader.getId() == LOADER_ARTICLES) {
             Log.e(">", "load finish");
             adapter = new RssListAdapter(articles);
+            adapter.setCallback(this);
             list.setAdapter(adapter);
             animator.showNext();
         }
@@ -154,5 +155,10 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
         if(loader.getId() == LOADER_ARTICLES) {
             animator.showNext();
         }
+    }
+
+    @Override
+    public void onRVItemClick(int id) {
+        getActivity().getFragmentManager().beginTransaction().replace(R.id.container, VideoFragment.newInstance(id)).commit();
     }
 }

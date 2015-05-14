@@ -33,6 +33,7 @@ import java.util.ArrayList;
 
 import ru.korsander.tedrss.R;
 import ru.korsander.tedrss.TedRss;
+import ru.korsander.tedrss.fragment.ClickItemCallback;
 import ru.korsander.tedrss.model.Article;
 import ru.korsander.tedrss.utils.Const;
 import ru.korsander.tedrss.utils.Utils;
@@ -41,6 +42,7 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
     private ArrayList<Article> items;
     private int lastPosition = -1;
     private String thumbHeight = "";
+    private ClickItemCallback callback;
 
     public RssListAdapter(ArrayList<Article> items) {
         this.items = items;
@@ -52,7 +54,25 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup group, int viewType) {
         View view = LayoutInflater.from(group.getContext()).inflate(R.layout.rss_list_item, group, false);
-        return new ViewHolder(view);
+        ViewHolder holder = new ViewHolder(view, new ViewHolder.OnVHClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                callback.onRVItemClick(items.get(position).getId());
+            }
+
+            @Override
+            public void onCheckClick(CheckBox box, int position) {
+                final int pos = position;
+                items.get(position).setViewed(box.isChecked());
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyItemChanged(pos);
+                    }
+                });
+            }
+        });
+        return holder;
     }
 
     @Override
@@ -104,21 +124,47 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
         return items.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    public ClickItemCallback getCallback() {
+        return callback;
+    }
+
+    public void setCallback(ClickItemCallback callback) {
+        this.callback = callback;
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private ImageView ivThumb;
         private TextView tvTime;
         private TextView tvDesc;
         private TextView tvDuration;
         private CheckBox chbViewed;
+        private OnVHClickListener listener;
 
-        public ViewHolder(View view) {
+        public ViewHolder(View view, OnVHClickListener listener) {
             super(view);
             ivThumb = (ImageView) view.findViewById(R.id.thumbImageView);
             tvTime = (TextView) view.findViewById(R.id.timeTextView);
             tvDesc = (TextView) view.findViewById(R.id.descTextView);
             tvDuration = (TextView) view.findViewById(R.id.durationTextView);
             chbViewed = (CheckBox) view.findViewById(R.id.viewedCheckBox);
+            this.listener = listener;
+            view.setOnClickListener(this);
+            chbViewed.setOnClickListener(this);
+        }
 
+        @Override
+        public void onClick(View view) {
+            if(view instanceof CheckBox) {
+                listener.onCheckClick((CheckBox) view, getAdapterPosition());
+
+            } else {
+                listener.onItemClick(view, getAdapterPosition());
+            }
+        }
+        public interface OnVHClickListener {
+            void onItemClick(View view, int position);
+            void onCheckClick(CheckBox box, int position);
         }
     }
+
 }

@@ -10,9 +10,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.MediaController;
 import android.widget.VideoView;
 
 import ru.korsander.tedrss.R;
+import ru.korsander.tedrss.TedRss;
+import ru.korsander.tedrss.loader.MediaLoader;
 import ru.korsander.tedrss.model.Article;
 
 public class VideoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Article>{
@@ -45,7 +48,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         }
 
         Bundle bundle = new Bundle();
-        getLoaderManager().initLoader(LOADER_ARTICLES, bundle, this);
+        getLoaderManager().initLoader(LOADER_MEDIA, bundle, this);
     }
 
     @Override
@@ -53,7 +56,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_video, container, false);
         videoView = (VideoView) view.findViewById(R.id.videoView);
-        getLoaderManager().getLoader(LOADER_ARTICLES).forceLoad();
+        getLoaderManager().getLoader(LOADER_MEDIA).forceLoad();
         return view;
     }
 
@@ -98,7 +101,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
             videoView.setVideoURI(Uri.parse(article.getMedia().get(0).getUrl()));
             videoView.setMediaController(new MediaController(getActivity()));
             videoView.requestFocus(0);
-            videoView.start()
+            videoView.start();
         }
     }
 
