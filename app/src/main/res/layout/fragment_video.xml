@@ -4,17 +4,29 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <VideoView
-        android:layout_width="wrap_content"
-        android:layout_height="200dp"
-        android:id="@+id/videoView"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+    <FrameLayout
+        android:id="@+id/videoSurfaceContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <SurfaceView
+            android:id="@+id/videoSurface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"/>
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_height="50dp"
+            android:layout_width="50dp"
+            android:layout_gravity="center"
+            android:indeterminateOnly="true"/>
+    </FrameLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/scrollView"
-        android:layout_below="@+id/videoView"
+        android:layout_below="@+id/videoSurfaceContainer"
         android:layout_centerHorizontal="true" />
 </RelativeLayout>

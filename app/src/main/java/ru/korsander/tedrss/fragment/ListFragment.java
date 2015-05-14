@@ -107,7 +107,7 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onResume() {
         super.onResume();
-        getLoaderManager().getLoader(LOADER_ARTICLES).reset();
+        //getLoaderManager().getLoader(LOADER_ARTICLES).reset();
     }
 
     @Override
@@ -153,12 +153,13 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onLoaderReset(Loader<ArrayList<Article>> loader) {
         if(loader.getId() == LOADER_ARTICLES) {
-            animator.showNext();
+            //animator.showNext();
+            //loader.forceLoad();
         }
     }
 
     @Override
     public void onRVItemClick(int id) {
-        getActivity().getFragmentManager().beginTransaction().replace(R.id.container, VideoFragment.newInstance(id)).commit();
+        getActivity().getFragmentManager().beginTransaction().replace(R.id.container, VideoFragment.newInstance(id)).addToBackStack(null).commit();
     }
 }

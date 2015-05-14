@@ -23,7 +23,7 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getFragmentManager().beginTransaction().replace(R.id.container, ListFragment.newInstance("","")).commit();
+        getFragmentManager().beginTransaction().replace(R.id.container, ListFragment.newInstance("","")).addToBackStack(null).commit();
 
         DownloadService.startLoad(this);
     }
@@ -51,6 +51,15 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
