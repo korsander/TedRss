@@ -93,7 +93,6 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
         layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         list.setLayoutManager(layoutManager);
         list.setItemAnimator(new DefaultItemAnimator());
-        getLoaderManager().getLoader(LOADER_ARTICLES).forceLoad();
         return view;
     }
 
@@ -107,7 +106,6 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onResume() {
         super.onResume();
-        //getLoaderManager().getLoader(LOADER_ARTICLES).reset();
     }
 
     @Override
@@ -152,10 +150,7 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoaderReset(Loader<ArrayList<Article>> loader) {
-        if(loader.getId() == LOADER_ARTICLES) {
-            //animator.showNext();
-            //loader.forceLoad();
-        }
+
     }
 
     @Override

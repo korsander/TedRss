@@ -16,11 +16,13 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import java.io.IOException;
 
 import ru.korsander.tedrss.R;
 import ru.korsander.tedrss.TedRss;
+import ru.korsander.tedrss.activity.MainActivity;
 import ru.korsander.tedrss.loader.MediaLoader;
 import ru.korsander.tedrss.model.Article;
 import ru.korsander.tedrss.view.VideoControllerView;
@@ -92,12 +94,25 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        ((MainActivity)getActivity()).getSupportActionBar().hide();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        ((MainActivity)getActivity()).getSupportActionBar().show();
     }
 
     @Override
@@ -115,7 +130,11 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         if(loader.getId() == LOADER_MEDIA) {
             Log.e(">", "load finish");
             this.article = article;
+            TextView tvTitle = (TextView) rootView.findViewById(R.id.tvVideoTitle);
+            TextView tvDesc = (TextView) rootView.findViewById(R.id.tvVideoDescription);
 
+            tvTitle.setText(article.getTitle());
+            tvDesc.setText(article.getDescription());
             try {
                 player.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 player.setDataSource(article.getMedia().get(0).getUrl());
@@ -215,7 +234,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void toggleFullScreen() {
-
+        Log.e(">>>", "full");
     }
 
     @Override
@@ -230,7 +249,6 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-        Log.e("VideoFrag", "touch");
         controller.show();
         return false;
     }
