@@ -18,4 +18,22 @@
         <item name="android:textColor">@color/color_light_blue</item>
     </style>
 
+    <style name="PlayerButton.Play" parent="@android:style/MediaButton.Play">
+        <item name="android:src">@drawable/ic_play_arrow_white_36dp</item>
+    </style>
+
+    <style name="PlayerButton.Ffwd" parent="@android:style/MediaButton.Ffwd">
+        <item name="android:src">@drawable/ic_fast_forward_white_36dp</item>
+    </style>
+
+    <style name="PlayerButton.Rew" parent="@android:style/MediaButton.Rew">
+        <item name="android:src">@drawable/ic_fast_rewind_white_36dp</item>
+    </style>
+    <style name="PlayerButton.Previous" parent="@android:style/MediaButton.Previous">
+        <item name="android:src">@drawable/ic_skip_previous_white_36dp</item>
+    </style>
+    <style name="PlayerButton.Next" parent="@android:style/MediaButton.Next">
+        <item name="android:src">@drawable/ic_skip_next_white_36dp</item>
+    </style>
+
 </resources>

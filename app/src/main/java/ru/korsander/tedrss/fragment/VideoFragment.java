@@ -3,6 +3,7 @@ package ru.korsander.tedrss.fragment;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.Intent;
 import android.content.Loader;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -16,6 +17,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -25,6 +27,7 @@ import ru.korsander.tedrss.TedRss;
 import ru.korsander.tedrss.activity.MainActivity;
 import ru.korsander.tedrss.loader.MediaLoader;
 import ru.korsander.tedrss.model.Article;
+import ru.korsander.tedrss.utils.Const;
 import ru.korsander.tedrss.view.VideoControllerView;
 
 public class VideoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Article>, SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, VideoControllerView.MediaPlayerControl, View.OnTouchListener, MediaPlayer.OnBufferingUpdateListener{
@@ -59,7 +62,6 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         if (getArguments() != null) {
             articleId = getArguments().getInt(ARG_ARTICLE_ID);
         }
-
         Bundle bundle = new Bundle();
         getLoaderManager().initLoader(LOADER_MEDIA, bundle, this);
     }
@@ -132,9 +134,25 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
             this.article = article;
             TextView tvTitle = (TextView) rootView.findViewById(R.id.tvVideoTitle);
             TextView tvDesc = (TextView) rootView.findViewById(R.id.tvVideoDescription);
+            TextView tvPublished = (TextView) rootView.findViewById(R.id.tvVideoPublished);
+            ImageButton ibView = (ImageButton) rootView.findViewById(R.id.ibViewInBrowser);
 
             tvTitle.setText(article.getTitle());
             tvDesc.setText(article.getDescription());
+            StringBuilder builder = new StringBuilder();
+            builder.append(getActivity().getString(R.string.article_published)).append(" ").append(article.getFormattedDate(Const.RFC1123_SHORT_DATE_PATTERN));
+            tvPublished.setText(builder.toString());
+            ibView.setTag(article.getLink());
+
+            ibView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String url = (String) view.getTag();
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(url));
+                    getActivity().startActivity(intent);
+                }
+            });
             try {
                 player.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 player.setDataSource(article.getMedia().get(0).getUrl());

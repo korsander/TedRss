@@ -11,5 +11,16 @@
     <string name="example_title">This is title</string>
     <string name="example_description">This is description, Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec scelerisque ante quis enim venenatis blandit.</string>
     <string name="example_duration">00:00:01</string>
+    <string name="article_published">Published:</string>
+
+    <string-array name="tarray">
+        <item>64</item>
+        <item>128</item>
+        <item>256</item>
+        <item>512</item>
+        <item>1024</item>
+        <item>2048</item>
+        <item>4096</item>
+    </string-array>
 
 </resources>

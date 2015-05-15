@@ -15,9 +15,12 @@
  */
 package ru.korsander.tedrss.utils;
 
+import ru.korsander.tedrss.db.TedRssDBHelper;
+
 public class Const {
     public static final String RFC1123_DATE_PATTERN = "EEE, dd MMM yyyy HH:mm:ss Z";
     public static final String RFC1123_SHORT_DATE_PATTERN = "EEE, dd MMM yyyy HH:mm";
     public static final String RSS_URL = "http://www.ted.com/themes/rss/id/6";
     public static final long UPDATE_TIMEOUT = 86400000;
+    public static final String ARRTICLES_TABLE_PATH = "sqlite://ru.korsander.tedrss/" + TedRssDBHelper.TABLE_ARTICLES;
 }

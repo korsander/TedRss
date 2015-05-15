@@ -3,6 +3,7 @@ package ru.korsander.tedrss.db;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import ru.korsander.tedrss.TedRss;
 import ru.korsander.tedrss.model.Article;
 import ru.korsander.tedrss.model.Media;
+import ru.korsander.tedrss.utils.Const;
 
 /**
  * Created by korsander on 06.05.2015.
@@ -65,7 +67,7 @@ public class TedRssDBManager {
             Log.e(LOG_TAG, "close transaction");
             if(flag) db.setTransactionSuccessful();
             db.endTransaction();
-            db.close();
+            TedRss.getContext().getContentResolver().notifyChange(Uri.parse(Const.ARRTICLES_TABLE_PATH), null);
         }
     }
 

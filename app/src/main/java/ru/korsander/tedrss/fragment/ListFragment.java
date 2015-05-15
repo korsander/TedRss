@@ -143,14 +143,15 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
             adapter = new RssListAdapter(articles);
             adapter.setCallback(this);
             list.setAdapter(adapter);
-            animator.showNext();
+            if(animator.getCurrentView().getId() == R.id.rlProgress && articles.size() > 0) {
+                animator.showNext();
+            }
         }
 
     }
 
     @Override
     public void onLoaderReset(Loader<ArrayList<Article>> loader) {
-
     }
 
     @Override

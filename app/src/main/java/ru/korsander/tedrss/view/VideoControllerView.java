@@ -27,11 +27,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
@@ -39,6 +41,7 @@ import java.util.Formatter;
 import java.util.Locale;
 
 import ru.korsander.tedrss.R;
+import ru.korsander.tedrss.TedRss;
 
 /**
  * A view containing controls for a MediaPlayer. Typically contains the
@@ -217,6 +220,11 @@ public class VideoControllerView extends FrameLayout {
         mCurrentTime = (TextView) v.findViewById(R.id.time_current);
         mFormatBuilder = new StringBuilder();
         mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
+
+        Spinner spinner = (Spinner) v.findViewById(R.id.spinner);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(TedRss.getContext(), android.R.layout.simple_spinner_item, TedRss.getContext().getResources().getStringArray(R.array.tarray));
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerArrayAdapter);
 
         installPrevNextListeners();
     }
@@ -438,9 +446,9 @@ public class VideoControllerView extends FrameLayout {
         }
 
         if (mPlayer.isPlaying()) {
-            mPauseButton.setImageResource(R.drawable.ic_media_pause);
+            mPauseButton.setImageResource(R.drawable.ic_pause_white_36dp);
         } else {
-            mPauseButton.setImageResource(R.drawable.ic_media_play);
+            mPauseButton.setImageResource(R.drawable.ic_play_arrow_white_36dp);
         }
     }
 
@@ -450,10 +458,10 @@ public class VideoControllerView extends FrameLayout {
         }
         
         if (mPlayer.isFullScreen()) {
-            mFullscreenButton.setImageResource(R.drawable.ic_media_fullscreen_shrink);
+            mFullscreenButton.setImageResource(R.drawable.ic_fullscreen_exit_white_36dp);
         }
         else {
-            mFullscreenButton.setImageResource(R.drawable.ic_media_fullscreen_stretch);
+            mFullscreenButton.setImageResource(R.drawable.ic_fullscreen_white_36dp);
         }
     }
 
