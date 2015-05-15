@@ -1,5 +1,6 @@
 package ru.korsander.tedrss.db;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
@@ -13,6 +14,7 @@ import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
+import ru.korsander.tedrss.R;
 import ru.korsander.tedrss.TedRss;
 import ru.korsander.tedrss.model.Article;
 import ru.korsander.tedrss.model.Media;
@@ -68,6 +70,8 @@ public class TedRssDBManager {
             if(flag) db.setTransactionSuccessful();
             db.endTransaction();
             TedRss.getContext().getContentResolver().notifyChange(Uri.parse(Const.ARRTICLES_TABLE_PATH), null);
+            TedRss.getContext().getSharedPreferences(TedRss.getContext().getString(R.string.default_sp_filename), Context.MODE_PRIVATE)
+                    .edit().putLong(Const.LAST_UPDATED, System.currentTimeMillis()).apply();
         }
     }
 

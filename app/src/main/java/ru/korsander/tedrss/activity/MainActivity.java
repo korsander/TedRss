@@ -1,5 +1,6 @@
 package ru.korsander.tedrss.activity;
 
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -17,6 +18,8 @@ import ru.korsander.tedrss.service.DownloadService;
 public class MainActivity extends ActionBarActivity implements OnFragmentInteractionListener{
 
     private Toolbar toolbar;
+    private SharedPreferences settings;
+    private SharedPreferences.Editor editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,7 +58,7 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
 
     @Override
     public void onBackPressed() {
-        if(getFragmentManager().getBackStackEntryCount() > 0) {
+        if(getFragmentManager().getBackStackEntryCount() > 1) {
             getFragmentManager().popBackStack();
         } else {
             super.onBackPressed();

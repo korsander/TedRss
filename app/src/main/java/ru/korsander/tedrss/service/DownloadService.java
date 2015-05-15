@@ -3,6 +3,8 @@ package ru.korsander.tedrss.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -12,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import ru.korsander.tedrss.R;
 import ru.korsander.tedrss.db.TedRssDBManager;
 import ru.korsander.tedrss.model.Article;
 import ru.korsander.tedrss.parser.TedXmlParser;
@@ -28,6 +31,9 @@ public class DownloadService extends IntentService {
     private static final String LOG_TAG = "DownloadService";
     private static final String ACTION_LOAD = "ru.korsander.tedrss.service.action.LOAD";
 
+    private static SharedPreferences settings;
+    private Editor editor;
+
 //    // TODO: Rename parameters
 //    private static final String EXTRA_PARAM1 = "ru.korsander.tedrss.service.extra.PARAM1";
 //    private static final String EXTRA_PARAM2 = "ru.korsander.tedrss.service.extra.PARAM2";
@@ -39,9 +45,15 @@ public class DownloadService extends IntentService {
      * @see IntentService
      */
     public static void startLoad(Context context) {
-        Intent intent = new Intent(context, DownloadService.class);
-        intent.setAction(ACTION_LOAD);
-        context.startService(intent);
+        settings = context.getSharedPreferences(context.getString(R.string.default_sp_filename), Context.MODE_PRIVATE);
+        if(!settings.contains(Const.UPDATE_TIMEOUT)) {
+            settings.edit().putLong(Const.UPDATE_TIMEOUT, Const.DEFAULT_UPDATE_TIMEOUT).apply();
+        }
+        if(!settings.contains(Const.LAST_UPDATED) || settings.getLong(Const.LAST_UPDATED, 0) + settings.getLong(Const.UPDATE_TIMEOUT, 0) < System.currentTimeMillis()) {
+            Intent intent = new Intent(context, DownloadService.class);
+            intent.setAction(ACTION_LOAD);
+            context.startService(intent);
+        }
     }
 
     public DownloadService() {
