@@ -34,6 +34,7 @@ import ru.korsander.tedrss.model.Article;
 public class ListFragment extends Fragment implements LoaderManager.LoaderCallbacks<ArrayList<Article>>, ClickItemCallback{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    public static final String FRAGMENT_NAME = "ListFragment";
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final int LOADER_ARTICLES = 1;
@@ -156,6 +157,7 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onRVItemClick(int id) {
-        getActivity().getFragmentManager().beginTransaction().replace(R.id.container, VideoFragment.newInstance(id)).addToBackStack(null).commit();
+        getActivity().getFragmentManager().popBackStackImmediate(VideoFragment.FRAGMENT_NAME, 0);
+        getActivity().getFragmentManager().beginTransaction().replace(R.id.container, VideoFragment.newInstance(id), VideoFragment.FRAGMENT_NAME).addToBackStack(VideoFragment.FRAGMENT_NAME).commit();
     }
 }

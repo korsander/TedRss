@@ -31,6 +31,7 @@ import ru.korsander.tedrss.utils.Const;
 import ru.korsander.tedrss.view.VideoControllerView;
 
 public class VideoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Article>, SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, VideoControllerView.MediaPlayerControl, View.OnTouchListener, MediaPlayer.OnBufferingUpdateListener{
+    public  static final String FRAGMENT_NAME = "VideoFragment";
     private static final String ARG_ARTICLE_ID = "id";
     private static final int LOADER_MEDIA = 2;
     private int articleId;

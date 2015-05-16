@@ -26,9 +26,11 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getFragmentManager().beginTransaction().replace(R.id.container, ListFragment.newInstance("","")).addToBackStack(null).commit();
-
-        DownloadService.startLoad(this);
+        if(getFragmentManager().findFragmentByTag(ListFragment.FRAGMENT_NAME) == null) {
+            getFragmentManager().popBackStackImmediate(ListFragment.FRAGMENT_NAME, 0);
+            getFragmentManager().beginTransaction().replace(R.id.container, ListFragment.newInstance("", ""), ListFragment.FRAGMENT_NAME).addToBackStack(ListFragment.FRAGMENT_NAME).commit();
+            DownloadService.startLoad(this);
+        }
     }
 
     @Override
@@ -40,11 +42,7 @@ public class MainActivity extends ActionBarActivity implements OnFragmentInterac
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         switch(id) {
             case R.id.action_backup:
                 TedRssDBManager.exportDatabse();
