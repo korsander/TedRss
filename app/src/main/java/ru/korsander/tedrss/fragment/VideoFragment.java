@@ -5,6 +5,8 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -16,8 +18,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -32,6 +36,7 @@ import ru.korsander.tedrss.view.VideoControllerView;
 
 public class VideoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Article>, SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, VideoControllerView.MediaPlayerControl, View.OnTouchListener, MediaPlayer.OnBufferingUpdateListener{
     public  static final String FRAGMENT_NAME = "VideoFragment";
+    private static final String POSITION = "position";
     private static final String ARG_ARTICLE_ID = "id";
     private static final int LOADER_MEDIA = 2;
     private int articleId;
@@ -73,10 +78,14 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         rootView = inflater.inflate(R.layout.fragment_video, container, false);
         videoSurface = (SurfaceView) rootView.findViewById(R.id.videoSurface);
         rootView.findViewById(R.id.videoSurfaceContainer).setOnTouchListener(this);
+        rootView.findViewById(R.id.infoLayout).setVisibility(View.INVISIBLE);
         SurfaceHolder videoHolder = videoSurface.getHolder();
         videoHolder.addCallback(this);
 
         player = new MediaPlayer();
+        if(savedInstanceState != null) {
+            player.seekTo(savedInstanceState.getInt(POSITION));
+        }
         controller = new VideoControllerView(getActivity());
         getLoaderManager().getLoader(LOADER_MEDIA).forceLoad();
         return rootView;
@@ -119,6 +128,28 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(player.isPlaying()) outState.putInt(POSITION, player.getCurrentPosition());
+    }
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        FrameLayout container = (FrameLayout) rootView.findViewById(R.id.videoSurfaceContainer);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            container.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            container.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+        handleAspectRatio();
+        controller.updateFullScreen();
+    }
+
+    @Override
     public Loader<Article> onCreateLoader(int i, Bundle bundle) {
         Loader<Article> loader = null;
         Log.e(">", "load start");
@@ -144,6 +175,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
             builder.append(getActivity().getString(R.string.article_published)).append(" ").append(article.getFormattedDate(Const.RFC1123_SHORT_DATE_PATTERN));
             tvPublished.setText(builder.toString());
             ibView.setTag(article.getLink());
+            rootView.findViewById(R.id.infoLayout).setVisibility(View.VISIBLE);
 
             ibView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -248,12 +280,17 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public boolean isFullScreen() {
-        return false;
+        return getActivity().getResources().getConfiguration().orientation != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
     }
 
     @Override
     public void toggleFullScreen() {
-        Log.e(">>>", "full");
+        if(getActivity().getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+        }
+
     }
 
     @Override

@@ -456,7 +456,6 @@ public class VideoControllerView extends FrameLayout {
         if (mRoot == null || mFullscreenButton == null || mPlayer == null) {
             return;
         }
-        
         if (mPlayer.isFullScreen()) {
             mFullscreenButton.setImageResource(R.drawable.ic_fullscreen_exit_white_36dp);
         }
