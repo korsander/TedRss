@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Point;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -47,6 +48,10 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     private VideoControllerView controller;
     private View rootView;
     private int currentBufferPercent;
+    private TextView tvTitle;
+    private TextView tvDesc;
+    private TextView tvPublished;
+    private ImageButton ibView;
 
     private OnFragmentInteractionListener mListener;
 
@@ -87,7 +92,6 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
             player.seekTo(savedInstanceState.getInt(POSITION));
         }
         controller = new VideoControllerView(getActivity());
-        getLoaderManager().getLoader(LOADER_MEDIA).forceLoad();
         return rootView;
     }
 
@@ -106,7 +110,6 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
         }
-
     }
 
     @Override
@@ -128,11 +131,21 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if(player.isPlaying()) outState.putInt(POSITION, player.getCurrentPosition());
+    public void onResume() {
+        super.onResume();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(player != null && player.isPlaying()) outState.putInt(POSITION, player.getCurrentPosition());
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -164,44 +177,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         if(loader.getId() == LOADER_MEDIA) {
             Log.e(">", "load finish");
             this.article = article;
-            TextView tvTitle = (TextView) rootView.findViewById(R.id.tvVideoTitle);
-            TextView tvDesc = (TextView) rootView.findViewById(R.id.tvVideoDescription);
-            TextView tvPublished = (TextView) rootView.findViewById(R.id.tvVideoPublished);
-            ImageButton ibView = (ImageButton) rootView.findViewById(R.id.ibViewInBrowser);
-
-            tvTitle.setText(article.getTitle());
-            tvDesc.setText(article.getDescription());
-            StringBuilder builder = new StringBuilder();
-            builder.append(getActivity().getString(R.string.article_published)).append(" ").append(article.getFormattedDate(Const.RFC1123_SHORT_DATE_PATTERN));
-            tvPublished.setText(builder.toString());
-            ibView.setTag(article.getLink());
-            rootView.findViewById(R.id.infoLayout).setVisibility(View.VISIBLE);
-
-            ibView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String url = (String) view.getTag();
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setData(Uri.parse(url));
-                    getActivity().startActivity(intent);
-                }
-            });
-            try {
-                player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                player.setDataSource(article.getMedia().get(0).getUrl());
-                player.setOnPreparedListener(this);
-                player.setDisplay(videoSurface.getHolder());
-                player.prepareAsync();
-                currentBufferPercent = 0;
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            } catch (SecurityException e) {
-                e.printStackTrace();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            updateData();
         }
     }
 
@@ -315,21 +291,69 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     private void handleAspectRatio() {
-        int videoWidth = player.getVideoWidth();
-        int videoHeight = player.getVideoHeight();
-        float videoProportion = (float) videoWidth / (float) videoHeight;
-        int screenWidth = getActivity().getWindowManager().getDefaultDisplay().getWidth();
-        int screenHeight = getActivity().getWindowManager().getDefaultDisplay().getHeight();
-        float screenProportion = (float) screenWidth / (float) screenHeight;
-        android.view.ViewGroup.LayoutParams lp = videoSurface.getLayoutParams();
+        if(getActivity() != null) {
+            Point point  = new Point();
+            getActivity().getWindowManager().getDefaultDisplay().getSize(point);
+            int videoWidth = player.getVideoWidth();
+            int videoHeight = player.getVideoHeight();
+            float videoProportion = (float) videoWidth / (float) videoHeight;
+            int screenWidth = point.x;
+            int screenHeight = point.y;
+            float screenProportion = (float) screenWidth / (float) screenHeight;
+            android.view.ViewGroup.LayoutParams lp = videoSurface.getLayoutParams();
 
-        if (videoProportion > screenProportion) {
-            lp.width = screenWidth;
-            lp.height = (int) ((float) screenWidth / videoProportion);
-        } else {
-            lp.width = (int) (videoProportion * (float) screenHeight);
-            lp.height = screenHeight;
+            if (videoProportion > screenProportion) {
+                lp.width = screenWidth;
+                lp.height = (int) ((float) screenWidth / videoProportion);
+            } else {
+                lp.width = (int) (videoProportion * (float) screenHeight);
+                lp.height = screenHeight;
+            }
+            videoSurface.setLayoutParams(lp);
         }
-        videoSurface.setLayoutParams(lp);
+    }
+
+    private void updateData() {
+        if(article != null) {
+            tvTitle = (TextView) rootView.findViewById(R.id.tvVideoTitle);
+            tvDesc = (TextView) rootView.findViewById(R.id.tvVideoDescription);
+            tvPublished = (TextView) rootView.findViewById(R.id.tvVideoPublished);
+            ibView = (ImageButton) rootView.findViewById(R.id.ibViewInBrowser);
+
+            tvTitle.setText(article.getTitle());
+            tvDesc.setText(article.getDescription());
+            StringBuilder builder = new StringBuilder();
+            builder.append(getActivity().getString(R.string.article_published)).append(" ").append(article.getFormattedDate(Const.RFC1123_SHORT_DATE_PATTERN));
+            tvPublished.setText(builder.toString());
+            ibView.setTag(article.getLink());
+            rootView.findViewById(R.id.infoLayout).setVisibility(View.VISIBLE);
+
+            ibView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String url = (String) view.getTag();
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setData(Uri.parse(url));
+                    TedRss.getContext().startActivity(intent);
+                }
+            });
+            try {
+                player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                player.setDataSource(article.getMedia().get(0).getUrl());
+                player.setOnPreparedListener(this);
+                player.setDisplay(videoSurface.getHolder());
+                player.prepareAsync();
+                currentBufferPercent = 0;
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
