@@ -35,12 +35,13 @@ import ru.korsander.tedrss.model.Article;
 import ru.korsander.tedrss.utils.Const;
 import ru.korsander.tedrss.view.VideoControllerView;
 
-public class VideoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Article>, SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, VideoControllerView.MediaPlayerControl, View.OnTouchListener, MediaPlayer.OnBufferingUpdateListener{
+public class VideoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Article>, SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, VideoControllerView.MediaPlayerControl, View.OnTouchListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnErrorListener {
     public  static final String FRAGMENT_NAME = "VideoFragment";
     private static final String POSITION = "position";
     private static final String ARG_ARTICLE_ID = "id";
     private static final int LOADER_MEDIA = 2;
     private int articleId;
+    private int prevPosition = 0;
     private Article article;
 
     private SurfaceView videoSurface;
@@ -89,7 +90,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
         player = new MediaPlayer();
         if(savedInstanceState != null) {
-            player.seekTo(savedInstanceState.getInt(POSITION));
+            prevPosition = savedInstanceState.getInt(POSITION);
         }
         controller = new VideoControllerView(getActivity());
         return rootView;
@@ -133,18 +134,34 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onResume() {
         super.onResume();
+//        if(player == null)
+//        player = new MediaPlayer();
+//        if(controller == null)
+//        controller = new VideoControllerView(getActivity());
+        updateData();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
+        player.reset();
+        player.setOnBufferingUpdateListener(null);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if(player != null && player.isPlaying()) outState.putInt(POSITION, player.getCurrentPosition());
+        if (player != null && player.isPlaying()) {
+            outState.putInt(POSITION, player.getCurrentPosition());
+        }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(savedInstanceState != null && player != null) {
+            prevPosition = savedInstanceState.getInt(POSITION);
+        }
     }
 
     @Override
@@ -177,6 +194,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         if(loader.getId() == LOADER_MEDIA) {
             Log.e(">", "load finish");
             this.article = article;
+            if(!player.isPlaying())
             updateData();
         }
     }
@@ -185,7 +203,6 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onLoaderReset(Loader<Article> loader) {
         if(loader.getId() == LOADER_MEDIA) {
-
         }
     }
 
@@ -275,6 +292,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         controller.setAnchorView((FrameLayout) rootView.findViewById(R.id.videoSurfaceContainer));
         player.setOnBufferingUpdateListener(this);
         player.start();
+        player.seekTo(prevPosition);
         handleAspectRatio();
         rootView.findViewById(R.id.progress).setVisibility(View.GONE);
     }
@@ -315,6 +333,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private void updateData() {
         if(article != null) {
+            Log.e("MP", "updateData");
             tvTitle = (TextView) rootView.findViewById(R.id.tvVideoTitle);
             tvDesc = (TextView) rootView.findViewById(R.id.tvVideoDescription);
             tvPublished = (TextView) rootView.findViewById(R.id.tvVideoPublished);
@@ -355,5 +374,19 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mediaPlayer, int what, int extra) {
+        if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
+            player.reset();
+        } else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN) {
+            player.reset();
+        }
+        player.setOnErrorListener(this);
+        player.setOnPreparedListener(this);
+        player.setOnBufferingUpdateListener(this);
+
+        return true;
     }
 }
