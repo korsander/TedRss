@@ -82,11 +82,8 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_video, container, false);
-        videoSurface = (SurfaceView) rootView.findViewById(R.id.videoSurface);
         rootView.findViewById(R.id.videoSurfaceContainer).setOnTouchListener(this);
         rootView.findViewById(R.id.infoLayout).setVisibility(View.INVISIBLE);
-        SurfaceHolder videoHolder = videoSurface.getHolder();
-        videoHolder.addCallback(this);
 
         player = new MediaPlayer();
         if(savedInstanceState != null) {
@@ -117,6 +114,8 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        player.reset();
+        player.release();
     }
 
     @Override
@@ -134,24 +133,26 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onResume() {
         super.onResume();
-//        if(player == null)
-//        player = new MediaPlayer();
-//        if(controller == null)
-//        controller = new VideoControllerView(getActivity());
-        updateData();
+        if(player == null)
+        player = new MediaPlayer();
+        if(controller == null)
+        controller = new VideoControllerView(getActivity());
+        videoSurface = (SurfaceView) rootView.findViewById(R.id.videoSurface);
+        SurfaceHolder videoHolder = videoSurface.getHolder();
+        videoHolder.addCallback(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        player.reset();
+        player.pause();
         player.setOnBufferingUpdateListener(null);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (player != null && player.isPlaying()) {
+        if (player != null) {
             outState.putInt(POSITION, player.getCurrentPosition());
         }
     }
@@ -208,7 +209,8 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-
+        player.setDisplay(holder);
+        updateData();
     }
 
     @Override
@@ -218,7 +220,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-
+        //player.stop();
     }
 
     @Override
@@ -361,7 +363,6 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
                 player.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 player.setDataSource(article.getMedia().get(0).getUrl());
                 player.setOnPreparedListener(this);
-                player.setDisplay(videoSurface.getHolder());
                 player.prepareAsync();
                 currentBufferPercent = 0;
             } catch (IllegalArgumentException e) {

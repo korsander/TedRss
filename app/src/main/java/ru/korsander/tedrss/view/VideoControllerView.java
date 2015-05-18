@@ -222,7 +222,7 @@ public class VideoControllerView extends FrameLayout {
         mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
 
         Spinner spinner = (Spinner) v.findViewById(R.id.spinner);
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(TedRss.getContext(), android.R.layout.simple_spinner_item, TedRss.getContext().getResources().getStringArray(R.array.tarray));
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(TedRss.getContext(), android.R.layout.simple_spinner_dropdown_item, TedRss.getContext().getResources().getStringArray(R.array.tarray));
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerArrayAdapter);
 
