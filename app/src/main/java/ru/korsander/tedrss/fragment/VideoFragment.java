@@ -20,27 +20,34 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import ru.korsander.tedrss.R;
 import ru.korsander.tedrss.TedRss;
 import ru.korsander.tedrss.activity.MainActivity;
 import ru.korsander.tedrss.loader.MediaLoader;
 import ru.korsander.tedrss.model.Article;
+import ru.korsander.tedrss.model.Media;
 import ru.korsander.tedrss.utils.Const;
 import ru.korsander.tedrss.view.VideoControllerView;
 
-public class VideoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Article>, SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, VideoControllerView.MediaPlayerControl, View.OnTouchListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnErrorListener {
+public class VideoFragment extends Fragment implements LoaderManager.LoaderCallbacks<Article>, SurfaceHolder.Callback, MediaPlayer.OnPreparedListener,
+        VideoControllerView.MediaPlayerControl, View.OnTouchListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnErrorListener, AdapterView.OnItemSelectedListener {
     public  static final String FRAGMENT_NAME = "VideoFragment";
     private static final String POSITION = "position";
     private static final String ARG_ARTICLE_ID = "id";
+    private static final String ARG_SPINNER_POSITION = "spinnerposition";
     private static final int LOADER_MEDIA = 2;
     private int articleId;
+    private int spinnerPos;
     private int prevPosition = 0;
     private Article article;
 
@@ -56,10 +63,11 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private OnFragmentInteractionListener mListener;
 
-    public static VideoFragment newInstance(int id) {
+    public static VideoFragment newInstance(int id, int pos) {
         VideoFragment fragment = new VideoFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_ARTICLE_ID, id);
+        args.putInt(ARG_SPINNER_POSITION, pos);
         fragment.setArguments(args);
         return fragment;
     }
@@ -73,6 +81,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             articleId = getArguments().getInt(ARG_ARTICLE_ID);
+            spinnerPos = getArguments().getInt(ARG_SPINNER_POSITION);
         }
         Bundle bundle = new Bundle();
         getLoaderManager().initLoader(LOADER_MEDIA, bundle, this);
@@ -116,6 +125,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         mListener = null;
         player.reset();
         player.release();
+        controller.setMediaPlayer(null);
     }
 
     @Override
@@ -145,8 +155,12 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onPause() {
         super.onPause();
-        player.pause();
-        player.setOnBufferingUpdateListener(null);
+        if(player.isPlaying()) {
+            player.pause();
+            player.setOnBufferingUpdateListener(null);
+        }
+
+//        controller.setSpinnerClickListener(null);
     }
 
     @Override
@@ -292,6 +306,16 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onPrepared(MediaPlayer mediaPlayer) {
         controller.setMediaPlayer(this);
         controller.setAnchorView((FrameLayout) rootView.findViewById(R.id.videoSurfaceContainer));
+        ArrayList<String> mediasStr = new ArrayList<String>();
+        for(Media media : article.getMedia()) {
+            mediasStr.add(media.getBitrate() + "");
+        }
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(TedRss.getContext(), android.R.layout.simple_spinner_dropdown_item, mediasStr.toArray(new String[mediasStr.size()]));
+        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        Log.e("POS", spinnerPos + "");
+        controller.setSpinnerAdapter(spinnerArrayAdapter);
+        controller.setSpinnerSelectListener(this);
+        controller.setPositionSpinner(spinnerPos);
         player.setOnBufferingUpdateListener(this);
         player.start();
         player.seekTo(prevPosition);
@@ -335,7 +359,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private void updateData() {
         if(article != null) {
-            Log.e("MP", "updateData");
+            Log.e("MP", "updateData pos:" + spinnerPos);
             tvTitle = (TextView) rootView.findViewById(R.id.tvVideoTitle);
             tvDesc = (TextView) rootView.findViewById(R.id.tvVideoDescription);
             tvPublished = (TextView) rootView.findViewById(R.id.tvVideoPublished);
@@ -361,7 +385,7 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
             });
             try {
                 player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                player.setDataSource(article.getMedia().get(0).getUrl());
+                player.setDataSource(article.getMedia().get(spinnerPos).getUrl());
                 player.setOnPreparedListener(this);
                 player.prepareAsync();
                 currentBufferPercent = 0;
@@ -386,8 +410,24 @@ public class VideoFragment extends Fragment implements LoaderManager.LoaderCallb
         }
         player.setOnErrorListener(this);
         player.setOnPreparedListener(this);
-        player.setOnBufferingUpdateListener(this);
-
         return true;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        if(getActivity() != null && i != spinnerPos) {
+            Log.e("SPPOS", i + " = " + spinnerPos + "L:" + l);
+            player.reset();
+            player.setOnBufferingUpdateListener(null);
+            getActivity().getFragmentManager().beginTransaction().remove(getActivity().getFragmentManager().findFragmentByTag(VideoFragment.FRAGMENT_NAME)).commit();
+            getActivity().getFragmentManager().popBackStack();
+            getActivity().getFragmentManager().beginTransaction().replace(R.id.container, VideoFragment.newInstance(articleId, i), VideoFragment.FRAGMENT_NAME).addToBackStack(VideoFragment.FRAGMENT_NAME).commit();
+            spinnerPos = i;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+        Log.e("SPPOS", "nothing");
     }
 }

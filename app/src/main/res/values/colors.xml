@@ -5,4 +5,6 @@
     <color name="color_blue">#FF2196F3</color>
     <color name="color_dark_blue">#FF0D47A1</color>
     <color name="color_light_blue">#FF90CAF9</color>
+    <color name="media_controller_back">#CC000000</color>
+
 </resources>

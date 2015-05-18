@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -41,7 +42,6 @@ import java.util.Formatter;
 import java.util.Locale;
 
 import ru.korsander.tedrss.R;
-import ru.korsander.tedrss.TedRss;
 
 /**
  * A view containing controls for a MediaPlayer. Typically contains the
@@ -98,6 +98,7 @@ public class VideoControllerView extends FrameLayout {
     private ImageButton         mPrevButton;
     private ImageButton         mFullscreenButton;
     private Handler             mHandler = new MessageHandler(this);
+    private Spinner             spinner;
 
     public VideoControllerView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -221,10 +222,7 @@ public class VideoControllerView extends FrameLayout {
         mFormatBuilder = new StringBuilder();
         mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
 
-        Spinner spinner = (Spinner) v.findViewById(R.id.spinner);
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(TedRss.getContext(), android.R.layout.simple_spinner_dropdown_item, TedRss.getContext().getResources().getStringArray(R.array.tarray));
-        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(spinnerArrayAdapter);
+        spinner = (Spinner) v.findViewById(R.id.spinner);
 
         installPrevNextListeners();
     }
@@ -665,6 +663,25 @@ public class VideoControllerView extends FrameLayout {
                     }
                     break;
             }
+        }
+    }
+
+
+    public void setSpinnerSelectListener(AdapterView.OnItemSelectedListener listener) {
+        if(spinner != null) {
+            spinner.setOnItemSelectedListener(listener);
+        }
+    }
+
+    public void setSpinnerAdapter(ArrayAdapter<String> adapter) {
+        if(spinner != null) {
+            spinner.setAdapter(adapter);
+        }
+    }
+
+    public void setPositionSpinner(int p) {
+        if(spinner != null) {
+            spinner.setSelection(p);
         }
     }
 }

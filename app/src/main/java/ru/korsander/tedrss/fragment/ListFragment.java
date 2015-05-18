@@ -158,6 +158,6 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onRVItemClick(int id) {
         getActivity().getFragmentManager().popBackStackImmediate(VideoFragment.FRAGMENT_NAME, 0);
-        getActivity().getFragmentManager().beginTransaction().replace(R.id.container, VideoFragment.newInstance(id), VideoFragment.FRAGMENT_NAME).addToBackStack(VideoFragment.FRAGMENT_NAME).commit();
+        getActivity().getFragmentManager().beginTransaction().replace(R.id.container, VideoFragment.newInstance(id, 0), VideoFragment.FRAGMENT_NAME).addToBackStack(VideoFragment.FRAGMENT_NAME).commit();
     }
 }
