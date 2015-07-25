@@ -94,6 +94,9 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
         layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         list.setLayoutManager(layoutManager);
         list.setItemAnimator(new DefaultItemAnimator());
+        adapter = new RssListAdapter();
+        adapter.setCallback(this);
+        list.setAdapter(adapter);
         return view;
     }
 
@@ -140,10 +143,8 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onLoadFinished(Loader<ArrayList<Article>> loader, ArrayList<Article> articles) {
         Log.e(">", "load finish" + articles.size());
         if(loader.getId() == LOADER_ARTICLES) {
-            Log.e(">", "load finish");
-            adapter = new RssListAdapter(articles);
-            adapter.setCallback(this);
-            list.setAdapter(adapter);
+            Log.e(">", "load finish");;
+            adapter.addArticles(articles);
             if(animator.getCurrentView().getId() == R.id.rlProgress && articles.size() > 0) {
                 animator.showNext();
             }

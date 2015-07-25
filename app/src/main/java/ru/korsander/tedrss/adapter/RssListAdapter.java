@@ -44,8 +44,8 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
     private String thumbHeight = "";
     private ClickItemCallback callback;
 
-    public RssListAdapter(ArrayList<Article> items) {
-        this.items = items;
+    public RssListAdapter() {
+        this.items = new ArrayList<Article>();
         StringBuilder sb = new StringBuilder();
         sb.append("?h=").append(Utils.convertDpToPixel(100));
         thumbHeight = sb.toString();
@@ -165,6 +165,10 @@ public class RssListAdapter extends RecyclerView.Adapter<RssListAdapter.ViewHold
             void onItemClick(View view, int position);
             void onCheckClick(CheckBox box, int position);
         }
+    }
+
+    public void addArticles(ArrayList<Article> data) {
+        this.items = data;
     }
 
 }
